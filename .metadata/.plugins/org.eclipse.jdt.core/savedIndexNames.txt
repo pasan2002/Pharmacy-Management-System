@@ -1,0 +1,11 @@
+INDEX VERSION 1.134+C:\Users\Tuf\Desktop\projects\Pharmacy_Management_System\.metadata\.plugins\org.eclipse.jdt.core
+522282315.index
+930395418.index
+3960100696.index
+2381145612.index
+1865797976.index
+2858383221.index
+1726193174.index
+3488454011.index
+2073456816.index
+3413270776.index

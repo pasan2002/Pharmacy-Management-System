@@ -1,0 +1,9 @@
+.left-form{
+	-fx-background-color:linear-gradient(to bottom right, #449d6b, #633364);
+	-fx-border-color:#000;
+	-fx-border-width:4px 0px .4px .4px;
+}
+
+.left-form-text{
+	-fx-text-fill:#fff0f0;
+}

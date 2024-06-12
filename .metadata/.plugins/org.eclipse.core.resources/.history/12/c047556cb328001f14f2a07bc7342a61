@@ -1,0 +1,11 @@
+package application;
+
+public class dataBase {
+	public static Connection connectDb() {
+		try {
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,7 @@
+.left-form{
+	-fx-background-color:linear-gradient(to bottom right, #449d6b, #633364);
+}
+
+.left-form-text{
+	-fx-text-fill:#fff0f0;
+}
