@@ -1,1 +1,44 @@
-/.metadata/
+# Eclipse specific files
+.classpath
+.project
+.settings/
+
+# Java specific files
+*.class
+*.jar
+*.war
+*.ear
+
+# Log files
+*.log
+
+# Mac OS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# JavaFX specific files
+*.jfxcache
+build/
+
+# Maven specific files
+target/
+
+# Gradle specific files
+.gradle/
+build/
+
+# Other IDE specific files
+.idea/
+*.iml
+*.iws
+
+# Backup files
+*.bak
+*.swp
+*~
+
+.gitignore/

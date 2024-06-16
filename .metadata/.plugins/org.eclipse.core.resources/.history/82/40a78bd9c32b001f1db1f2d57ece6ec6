@@ -1,0 +1,1157 @@
+package application;
+
+import java.awt.TextArea;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import java.sql.Statement;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+public class dashboard_Controller implements Initializable {
+    @FXML
+    private Button addMed_btn;
+
+    @FXML
+    private Button addmedicine_addBtn;
+
+    @FXML
+    private TextField addmedicine_brandName;
+
+    @FXML
+    private Button addmedicine_clearBtn;
+
+    @FXML
+    private TableColumn<medicineData, String> addmedicine_col_brandName;
+
+    @FXML
+    private TableColumn<medicineData, String> addmedicine_col_date;
+
+    @FXML
+    private TableColumn<medicineData, Integer> addmedicine_col_medicineid;
+
+    @FXML
+    private TableColumn<medicineData, Double> addmedicine_col_price;
+
+    @FXML
+    private TableColumn<medicineData, String> addmedicine_col_productName;
+
+    @FXML
+    private TableColumn<medicineData, String> addmedicine_col_status;
+
+    @FXML
+    private TableColumn<medicineData, String> addmedicine_col_type;
+
+    @FXML
+    private Button addmedicine_deleteBtn;
+
+    @FXML
+    private AnchorPane addmedicine_form;
+
+    @FXML
+    private ImageView addmedicine_imageView;
+
+    @FXML
+    private Button addmedicine_importBtn;
+
+    @FXML
+    private TableView<medicineData> addMedicine_tableView;
+
+    @FXML
+    private TextField addmedicine_medicineID;
+
+    @FXML
+    private TextField addmedicine_price;
+
+    @FXML
+    private TextField addmedicine_productName;
+
+    @FXML
+    private TextField addmedicine_search;
+
+    @FXML
+    private ComboBox<String> addmedicine_status;
+
+    @FXML
+    private ComboBox<String> addmedicine_type;
+
+    @FXML
+    private Button addmedicine_updateBtn;
+
+    @FXML
+    private Button close;
+
+    @FXML
+    private Label dashboard_availableMed;
+
+    @FXML
+    private Button dashboard_btn;
+
+    @FXML
+    private AreaChart<?, ?> dashboard_chart;
+
+    @FXML
+    private AnchorPane dashboard_form;
+
+    @FXML
+    private Label dashboard_totalIncome;
+
+    @FXML
+    private Label dashboard_totalUsers;
+
+    @FXML
+    private Button logout;
+
+    @FXML
+    private AnchorPane main_form;
+
+    @FXML
+    private Button minimize;
+
+    @FXML
+    private Button purchase_addBtn;
+
+    @FXML
+    private TextField purchase_amount;
+
+    @FXML
+    private Label purchase_balance;
+
+    @FXML
+    private ComboBox<String> purchase_brand;
+
+    @FXML
+    private Button purchase_btn;
+    
+    @FXML
+    private Spinner<Integer> purchase_quantity;
+
+    @FXML
+    private TableColumn<customerData, String> purchase_col_brandname;
+
+    @FXML
+    private TableColumn<customerData, Integer> purchase_col_medicineid;
+
+    @FXML
+    private TableColumn<customerData, Double> purchase_col_price;
+
+    @FXML
+    private TableColumn<customerData, String> purchase_col_productname;
+    
+    @FXML
+    private TableColumn<customerData, String> purchase_col_type;
+
+    @FXML
+    private TableColumn<customerData, Integer> purchase_col_qty;
+
+    @FXML
+    private AnchorPane purchase_form;
+
+    @FXML
+    private ComboBox<String> purchase_id;
+
+    @FXML
+    private Button purchase_payBtn;
+
+    @FXML
+    private ComboBox<String> purchase_product;
+
+    @FXML
+    private TableView<customerData> purchase_tabelView;
+
+    @FXML
+    private Label purchase_total;
+
+    @FXML
+    private ComboBox<String> purchase_type;
+
+    @FXML
+    private Label username;
+
+    private Connection connect;
+    private PreparedStatement prepare;
+    private Statement statement;
+    private ResultSet result;
+
+    private Image image;
+    
+    public void homeAm() {
+    	String sql = "SELECT COUNT(id) FROM medicine WHERE status = 'Available'";
+    	
+    	connect = dataBase.connectDb();
+    	int countAM = 0;
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			countAM =result.getInt("COUNT(id)");
+    		}
+    		
+    		dashboard_availableMed.setText(String.valueOf(countAM));
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void homeTI() {
+    	String sql = "SELECT SUM(total) FROM customer_info";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		double totalDisplay = 0;
+    		
+    		while(result.next()) {
+    			totalDisplay = result.getDouble("SUM(total)");
+    		}
+    		
+    		dashboard_totalIncome.setText("$" + String.valueOf(totalDisplay));
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void homeTU() {
+    	String sql = "SELECT COUNT(id) FROM customer_info";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	int countTU = 0;
+    	
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			countTU = result.getInt("COUNT(id)");
+    		}
+    		
+    		dashboard_totalUsers.setText(String.valueOf(countTU));
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+
+    public void addMedicineAdd() {
+        String sql = "INSERT INTO medicine (medicine_id,brand,productName,type,status,price,image,date)"
+                + "VALUES(?,?,?,?,?,?,?,?)";
+
+        connect = dataBase.connectDb();
+
+        try {
+            Alert alert;
+            if (addmedicine_medicineID.getText().isEmpty()
+                    || addmedicine_brandName.getText().isEmpty()
+                    || addmedicine_productName.getText().isEmpty()
+                    || addmedicine_type.getSelectionModel().getSelectedItem() == null
+                    || addmedicine_status.getSelectionModel().getSelectedItem() == null
+                    || getData.path == null || getData.path == "") {
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Please fill all the blanks.");
+                alert.showAndWait();
+            } else {
+                String checkData = "SELECT medicine_id FROM medicine WHERE medicine_id = '"
+                        + addmedicine_medicineID.getText() + "'";
+
+                statement = connect.createStatement();
+                result = statement.executeQuery(checkData);
+
+                if (result.next()) {
+                    alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Error Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Medicine ID: " + addmedicine_medicineID.getText() + " was already taken.");
+                    alert.showAndWait();
+                } else {
+                    prepare = connect.prepareStatement(sql);
+                    prepare.setString(1, addmedicine_medicineID.getText());
+                    prepare.setString(2, addmedicine_brandName.getText());
+                    prepare.setString(3, addmedicine_productName.getText());
+                    prepare.setString(4, addmedicine_type.getSelectionModel().getSelectedItem());
+                    prepare.setString(5, addmedicine_status.getSelectionModel().getSelectedItem());
+                    prepare.setString(6, addmedicine_price.getText());
+
+                    String uri = getData.path;
+                    uri = uri.replace("\\", "\\\\");
+
+                    prepare.setString(7, uri);
+
+                    java.util.Date date = new java.util.Date();
+                    java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+
+                    prepare.setDate(8, sqlDate);
+
+                    prepare.executeUpdate();
+                    
+                    alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Information Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Successfully Added!");
+                    alert.showAndWait();
+
+                    addMedicineShowListData();
+                    addMedicineReset();
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void fetchMedicineTypes() {
+    	String sql = "SELECT DISTINCT type FROM medicine";
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		ObservableList<String> types = FXCollections.observableArrayList();
+    		while(result.next()) {
+    			types.add(result.getString("type"));
+    		}
+    		addmedicine_type.setItems(types);
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void fetchMedicineStatuses() {
+    	String sql = "SELECT DISTINCT status FROM medicine";
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		ObservableList<String> statuses = FXCollections.observableArrayList();
+    		while(result.next()) {
+    			statuses.add(result.getString("status"));
+    		}
+    		addmedicine_status.setItems(statuses);
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void addMedicineUpdate() {
+    	String uri = getData.path;
+    	uri = uri.replace("\\", "\\\\");
+    	
+    	String sql = "UPDATE medicine SET brand = '"
+    			+addmedicine_brandName.getText()+"', productName = '"
+    			+addmedicine_productName.getText()+"', type = '"
+    			+addmedicine_type.getSelectionModel().getSelectedItem()+"', status = '"
+    			+addmedicine_status.getSelectionModel().getSelectedItem()+"', price = '"
+    			+addmedicine_price.getText()+"', image = '"+uri+"' WHERE medicine_id = '"
+    			+addmedicine_medicineID.getText()+"'";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		Alert alert;
+            if (addmedicine_medicineID.getText().isEmpty()
+                    || addmedicine_brandName.getText().isEmpty()
+                    || addmedicine_productName.getText().isEmpty()
+                    || addmedicine_type.getSelectionModel().getSelectedItem() == null
+                    || addmedicine_status.getSelectionModel().getSelectedItem() == null
+                    || getData.path == null || getData.path == "") {
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Please fill all the blanks.");
+                alert.showAndWait();
+            } else {
+            	alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Confirmation Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Are you sure you want to UPDATE Medicine ID:" + addmedicine_medicineID.getText() + "?");
+                Optional<ButtonType> option = alert.showAndWait();
+                
+                if(option.get().equals(ButtonType.OK)) {
+                	statement = connect.createStatement();
+                	statement.executeUpdate(sql);
+                	
+                    alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Information Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Successfully Updated!");
+                    alert.showAndWait();
+                    
+                    addMedicineShowListData();
+                    addMedicineReset();
+                    
+                }
+            	
+            }
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void addMedicineDelete() {
+    	String sql = "DELETE FROM medicine WHERE medicine_id = '"+addmedicine_medicineID.getText()+"'";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		Alert alert;
+            if (addmedicine_medicineID.getText().isEmpty()
+                    || addmedicine_brandName.getText().isEmpty()
+                    || addmedicine_productName.getText().isEmpty()
+                    || addmedicine_type.getSelectionModel().getSelectedItem() == null
+                    || addmedicine_status.getSelectionModel().getSelectedItem() == null
+                    || getData.path == null || getData.path == "") {
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Please fill all the blanks.");
+                alert.showAndWait();
+            } else {
+            	alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Confirmation Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Are you sure you want to DELETE Medicine ID:" + addmedicine_medicineID.getText() + "?");
+                Optional<ButtonType> option = alert.showAndWait();
+                
+                if(option.get().equals(ButtonType.OK)) {
+                	statement = connect.createStatement();
+                	statement.executeUpdate(sql);
+                	
+                    alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Information Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Successfully Deleted!");
+                    alert.showAndWait();
+                    
+                    addMedicineShowListData();
+                    addMedicineReset();
+                    
+                }
+            }
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void addMedicineReset() {
+    	addmedicine_medicineID.setText("");
+    	addmedicine_brandName.setText("");
+    	addmedicine_productName.setText("");
+    	addmedicine_price.setText("");
+    	addmedicine_type.getSelectionModel().clearSelection();
+    	addmedicine_status.getSelectionModel().clearSelection();
+    	
+    	addmedicine_imageView.setImage(null);
+    	
+    	getData.path = "";
+    }
+
+    private String[] addMedicineListT = { "Hydrocodone", "Antibiotics", "Metfomine", "Losartan", "Albuterol" };
+
+    public void addMedicineListType() {
+        List<String> listT = new ArrayList<>();
+
+        for (String data : addMedicineListT) {
+            listT.add(data);
+        }
+
+        ObservableList<String> listData = FXCollections.observableArrayList(listT);
+        addmedicine_type.setItems(listData);
+
+    }
+    
+    private String[] addMedicineStatus = {"Available", "Not Available"};
+    public void addMedicineStatus() {
+        List<String> listS = new ArrayList<>();
+
+        for (String data : addMedicineStatus) {
+            listS.add(data);
+        }
+
+        ObservableList<String> listData = FXCollections.observableArrayList(listS);
+        addmedicine_status.setItems(listData);
+    }
+
+    public void addMedicineInsertImage() {
+        FileChooser open = new FileChooser();
+        open.setTitle("Import Image File");
+        open.getExtensionFilters().add(new ExtensionFilter("Image File", "*jpg", "*png"));
+
+        File file = open.showOpenDialog(main_form.getScene().getWindow());
+
+        if (file != null) {
+            image = new Image(file.toURI().toString(), 133, 144, false, true);
+
+            addmedicine_imageView.setImage(image);
+
+            getData.path = file.getAbsolutePath();
+        }
+    }
+
+    public ObservableList<medicineData> addMedicineListData() {
+        String sql = "SELECT * FROM medicine";
+        ObservableList<medicineData> listData = FXCollections.observableArrayList();
+        connect = dataBase.connectDb();
+
+        try {
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            medicineData medData;
+
+            while (result.next()) {
+                medData = new medicineData(result.getInt("medicine_id"), result.getString("brand"),
+                        result.getString("productName"), result.getString("type"),
+                        result.getString("status"), result.getDouble("price"),
+                        result.getString("image"), result.getDate("date"));
+
+                listData.add(medData);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return listData;
+    }
+
+    public ObservableList<medicineData> addMedicineList;
+
+    public void addMedicineShowListData() {
+        addMedicineList = addMedicineListData();
+
+        addmedicine_col_medicineid.setCellValueFactory(new PropertyValueFactory<>("medicineId"));
+        addmedicine_col_brandName.setCellValueFactory(new PropertyValueFactory<>("brand"));
+        addmedicine_col_productName.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        addmedicine_col_type.setCellValueFactory(new PropertyValueFactory<>("type"));
+        addmedicine_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
+        addmedicine_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
+        addmedicine_col_date.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+        addMedicine_tableView.setItems(addMedicineList);
+    }
+    
+    private void filterMedicineList(String searchText) {
+        
+        FilteredList<medicineData> filteredData = new FilteredList<>(addMedicineList, p -> true);
+
+        
+        filteredData.setPredicate(medData -> {
+            if (searchText == null || searchText.isEmpty()) {
+                return true; 
+            }
+
+            String lowerCaseFilter = searchText.toLowerCase();
+
+            if(medData.getDate().toString().contains(lowerCaseFilter)) {
+            	return true;
+        	}else if (medData.getBrand().toLowerCase().contains(lowerCaseFilter)) {
+                return true; 
+            } else if (medData.getProductName().toLowerCase().contains(lowerCaseFilter)) {
+                return true; 
+            } else if (String.valueOf(medData.getMedicineId()).contains(lowerCaseFilter)) {
+                return true; 
+            } else if (medData.getPrice().toString().contains(lowerCaseFilter)) {
+            	return true;
+            }
+            return false; 
+        });
+
+        
+        SortedList<medicineData> sortedData = new SortedList<>(filteredData);
+
+        
+        sortedData.comparatorProperty().bind(addMedicine_tableView.comparatorProperty());
+
+        
+        addMedicine_tableView.setItems(sortedData);
+    }
+    
+    
+    public void addMedicineSelect() {
+        medicineData medData = addMedicine_tableView.getSelectionModel().getSelectedItem();
+        int num = addMedicine_tableView.getSelectionModel().getSelectedIndex();
+
+        if ((num - 1) < -1) {
+            return;
+        }
+
+        addmedicine_medicineID.setText(String.valueOf(medData.getMedicineId()));
+        addmedicine_brandName.setText(medData.getBrand());
+        addmedicine_productName.setText(medData.getProductName());
+        addmedicine_price.setText(String.valueOf(medData.getPrice()));
+        
+        addmedicine_type.getSelectionModel().select(medData.getType());
+        addmedicine_status.getSelectionModel().select(medData.getStatus());
+
+        String uri = "file:" + medData.getImage();
+
+        image = new Image(uri, 133, 144, false, true);
+        addmedicine_imageView.setImage(image);
+
+        getData.path = medData.getImage();
+    }
+    private double totalP;
+    public void purchaseAdd() {
+        purchaseCustomerId();
+        
+        String sql = "INSERT INTO customer (customer_id, type, medicine_id, brand, productName, quantity, price, date)"
+                + " VALUES(?,?,?,?,?,?,?,?)";
+        
+        connect = dataBase.connectDb();
+        
+        try {
+            Alert alert;
+            
+            if (purchase_type.getSelectionModel().getSelectedItem() == null 
+                    || purchase_id.getSelectionModel().getSelectedItem() == null
+                    || purchase_brand.getSelectionModel().getSelectedItem() == null
+                    || purchase_product.getSelectionModel().getSelectedItem() == null) {
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Please fill all the blanks.");
+                alert.showAndWait();
+            } else {
+                prepare = connect.prepareStatement(sql);
+                prepare.setString(1, String.valueOf(customerId));
+                prepare.setString(2, (String) purchase_type.getSelectionModel().getSelectedItem());
+                prepare.setString(3, (String) purchase_id.getSelectionModel().getSelectedItem());
+                prepare.setString(4, (String) purchase_brand.getSelectionModel().getSelectedItem());
+                prepare.setString(5, (String) purchase_product.getSelectionModel().getSelectedItem());
+                prepare.setString(6, String.valueOf(qty));
+                
+                String checkData = "SELECT price FROM medicine WHERE medicine_id = '"
+                        + purchase_id.getSelectionModel().getSelectedItem() + "'";
+                
+                statement = connect.createStatement();
+                result = statement.executeQuery(checkData);
+                
+                double priceD = 0;
+                
+                if (result.next()) {
+                    priceD = result.getDouble("price");
+                }
+                
+                totalP = (priceD * qty);
+                
+                prepare.setString(7, String.valueOf(totalP));
+                
+                java.util.Date date = new java.util.Date();
+                java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+                prepare.setDate(8, sqlDate);
+                
+                prepare.executeUpdate();
+                purchaseShowListData();
+                purchaseDisplayTotal();
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private double totalPriceD;
+    public void purchaseDisplayTotal() {
+    	String sql  = "SELECT SUM(price) FROM customer WHERE customer_id = '"+customerId+"'";
+    
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		if(result.next()) {
+    			totalPriceD = result.getDouble("SUM(price)");
+    		}
+    		purchase_total.setText("$" + String.valueOf(totalPriceD));
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    private double balance;
+    private double amount;
+    public void purchaseAmount() {
+        if(purchase_amount.getText().isEmpty() || totalPriceD == 0) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Invalid :3");
+            alert.showAndWait();
+        } else {
+            amount = Double.parseDouble(purchase_amount.getText());
+            if(totalPriceD > amount) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Insufficient amount.");
+                alert.showAndWait();
+            } else {
+                balance = amount - totalPriceD;
+                purchase_balance.setText("$"+String.valueOf(balance));
+            }
+        }
+    }
+    
+    public void purchasePay() {
+    	purchaseCustomerId();
+    	String sql = "INSERT INTO customer_info (customer_id, total, date) "
+    			+ "VALUES(?,?,?)";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		Alert alert;
+    		
+    		if(totalPriceD == 0) {
+    			alert = new Alert(AlertType.ERROR);
+    			alert.setHeaderText(null);
+    			alert.setContentText("Something went wrong :3");
+    			alert.showAndWait();
+    		}else {
+    			alert = new Alert(AlertType.CONFIRMATION);
+    			alert.setHeaderText(null);
+    			alert.setContentText("Are you sure?");
+    			Optional<ButtonType> option = alert.showAndWait();
+    			
+    			if(option.get().equals(ButtonType.OK)) {
+    				 //String fileName = "bill_" + customerId + ".txt";
+    				 String fileName = "bill_" + customerId + ".pdf"; 
+    				    try {
+    				      generateBillToPdf(fileName);
+    				      System.out.println("Bill generated successfully: " + fileName);
+    				    } catch (IOException | DocumentException e) {
+    				      e.printStackTrace();
+    				      Alert alert1 = new Alert(AlertType.ERROR);
+    				      alert1.setHeaderText(null);
+    				      alert1.setContentText("Error generating bill PDF.");
+    				      alert1.showAndWait();
+    				    }
+    				prepare = connect.prepareStatement(sql);
+    				prepare.setString(1, String.valueOf(customerId));
+    				prepare.setString(2, String.valueOf(totalPriceD));
+    				
+    				java.util.Date date = new java.util.Date();
+    				java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+    				prepare.setDate(3, sqlDate);
+    				
+    				prepare.executeUpdate();
+    				
+    				alert = new Alert(AlertType.INFORMATION);
+    				alert.setHeaderText(null);
+    				alert.setContentText("Successful!");
+    				alert.showAndWait();
+    				
+    				purchase_amount.setText("");
+    				purchase_balance.setText("$0.0");
+    			}
+    			
+    			
+    		}
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void generateBillToPdf(String fileName) throws IOException, DocumentException {
+    	  Document document = new Document(PageSize.A4);
+    	  PdfWriter.getInstance(document, new FileOutputStream(fileName));
+    	  
+    	  document.open();
+    	  
+    	  Paragraph title = new Paragraph("Customer Bill"); 
+    	  title.setAlignment(Element.ALIGN_CENTER); 
+    	  document.add(title);
+    	  
+    	  document.add(new Paragraph("Customer ID: " + customerId));
+    	  
+    	  // Create a table for bill items
+    	  PdfPTable table = new PdfPTable(3);
+    	  table.setWidthPercentage(100);
+    	  table.addCell("Items");
+    	  table.addCell("Quantity");
+    	  table.addCell("Price");
+    	  table.setHeaderRows(1);
+    	  
+    	  for (customerData item : purchaseList) {
+    	    table.addCell(item.getProductName());
+    	    table.addCell(String.valueOf(item.getQuantity()));
+    	    table.addCell(String.valueOf(item.getPrice()));
+    	  }
+    	  document.add(table);
+    	  
+    	  document.add(new Paragraph("Total Price: $" + totalPriceD));
+    	  
+    	  document.close();
+    	}
+
+    
+    
+
+    private SpinnerValueFactory<Integer> spinner;
+    public void purchaseShowValue() {
+    	spinner = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20, 0);
+    	purchase_quantity.setValueFactory(spinner);
+    }
+    
+    private int qty;
+    public void purchaseQuantity() {
+    	qty = purchase_quantity.getValue();
+    }
+    
+    public ObservableList<customerData> purchaseListData(){
+    	purchaseCustomerId();
+    	
+    	String sql = "SELECT * FROM customer WHERE customer_id = '"+customerId+"'";
+    	
+    	ObservableList<customerData> listData = FXCollections.observableArrayList();
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		customerData customerD;
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			customerD = new customerData(result.getInt("customer_id"),
+    					result.getString("type"), result.getInt("medicine_id"), result.getString("brand"),
+    					result.getString("productName"), result.getInt("quantity"), result.getDouble("price"),
+    					result.getDate("date"));
+    			
+    			listData.add(customerD);
+    		}
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	return listData;
+    }
+    
+    private ObservableList<customerData> purchaseList;
+    public void purchaseShowListData() {
+    	purchaseList = purchaseListData();
+    	
+    	purchase_col_medicineid.setCellValueFactory(new PropertyValueFactory<>("medicineId"));
+    	purchase_col_brandname.setCellValueFactory(new PropertyValueFactory<>("brand"));
+    	purchase_col_productname.setCellValueFactory(new PropertyValueFactory<>("productName"));
+    	purchase_col_type.setCellValueFactory(new PropertyValueFactory<>("type"));
+    	purchase_col_qty.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+    	purchase_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
+    	
+    	purchase_tabelView.setItems(purchaseList);
+    }
+    
+    private int customerId;
+    public void purchaseCustomerId() {
+    	String sql = "SELECT customer_id from customer";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			customerId = result.getInt("customer_id");
+    		}
+    		int cID = 0;
+    		String checkData = "SELECT customer_id FROM customer_info";
+    		
+    		statement = connect.createStatement();
+    		result = statement.executeQuery(checkData);
+    		
+    		while(result.next()) {
+    			cID = result.getInt("customer_id");
+    		}
+    		
+    		if(customerId == 0) {
+    			customerId += 1;
+    		}else if(cID == customerId) {
+    			customerId = cID + 1;
+    		}
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void purchaseType() {
+    	String sql = "SELECT type FROM medicine WHERE status = 'Available'";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		ObservableList<String> listData = FXCollections.observableArrayList();
+    		
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			listData.add(result.getString("type"));
+    		}
+    		purchase_type.setItems(listData);
+    		
+    		purchaseMedicineId();
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+
+    public void purchaseMedicineId() {
+    	String sql = "SELECT * FROM medicine WHERE type = '"
+    			+purchase_type.getSelectionModel().getSelectedItem()+"'";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		ObservableList<String> listData = FXCollections.observableArrayList();
+    		
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			listData.add(result.getString("medicine_id"));
+    		}
+    		purchase_id.setItems(listData);
+    		
+    		purchaseBrand();
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void purchaseBrand() {
+    	String sql = "SELECT * FROM medicine WHERE medicine_id = '"
+    			+purchase_id.getSelectionModel().getSelectedItem()+"'";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		ObservableList<String> listData = FXCollections.observableArrayList();
+    		
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			listData.add(result.getString("brand"));
+    		}
+    		
+    		purchase_brand.setItems(listData);
+    		purchaseProductName();
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void purchaseProductName() {
+    	String sql = "SELECT * FROM medicine WHERE brand = '"
+    			+purchase_brand.getSelectionModel().getSelectedItem()+"'";
+    	
+    	connect = dataBase.connectDb();
+    	
+    	try {
+    		ObservableList<String> listData = FXCollections.observableArrayList();
+    		
+    		prepare = connect.prepareStatement(sql);
+    		result = prepare.executeQuery();
+    		
+    		while(result.next()) {
+    			listData.add(result.getString("productName"));
+    		}
+    		
+    		purchase_product.setItems(listData);
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    public void switchForm(ActionEvent e) {
+        if (e.getSource() == dashboard_btn) {
+            dashboard_form.setVisible(true);
+            addmedicine_form.setVisible(false);
+            purchase_form.setVisible(false);
+
+            dashboard_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #41b170, #8a418c)");
+            addMed_btn.setStyle("-fx-background-color:transparent");
+            purchase_btn.setStyle("-fx-background-color:transparent");
+
+        } else if (e.getSource() == addMed_btn) {
+            dashboard_form.setVisible(false);
+            addmedicine_form.setVisible(true);
+            purchase_form.setVisible(false);
+
+            addMed_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #41b170, #8a418c)");
+            dashboard_btn.setStyle("-fx-background-color:transparent");
+            purchase_btn.setStyle("-fx-background-color:transparent");
+
+            addMedicineShowListData();
+            addMedicineListType();
+            addMedicineStatus();
+            
+
+        } else if (e.getSource() == purchase_btn) {
+            dashboard_form.setVisible(false);
+            addmedicine_form.setVisible(false);
+            purchase_form.setVisible(true);
+
+            purchase_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #41b170, #8a418c)");
+            addMed_btn.setStyle("-fx-background-color:transparent");
+            dashboard_btn.setStyle("-fx-background-color:transparent");
+            
+            purchaseType();
+            purchaseMedicineId();
+            purchaseBrand();
+            purchaseProductName();
+            purchaseShowListData();
+            purchaseShowValue();
+            purchaseDisplayTotal();
+
+        }
+    }
+
+    public void displayUsername() {
+        String user = getData.username;
+
+        username.setText(user.substring(0, 1).toUpperCase() + user.substring(1));
+    }
+
+    private double x = 0;
+    private double y = 0;
+
+    public void logout() {
+        try {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to logout?");
+            Optional<ButtonType> option = alert.showAndWait();
+
+            if (option.get().equals(ButtonType.OK)) {
+                logout.getScene().getWindow().hide();
+                Parent root = FXMLLoader.load(getClass().getResource("Scene.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(root);
+
+                root.setOnMousePressed((MouseEvent event) -> {
+                    x = event.getSceneX();
+                    y = event.getSceneY();
+                });
+
+                root.setOnMouseDragged((MouseEvent event) -> {
+                    stage.setX(event.getScreenX() - x);
+                    stage.setY(event.getScreenY() - y);
+
+                    stage.setOpacity(.8);
+                });
+
+                root.setOnMouseReleased((MouseEvent event) -> {
+                    stage.setOpacity(1);
+                });
+
+                stage.initStyle(StageStyle.TRANSPARENT);
+
+                stage.setScene(scene);
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void minimize() {
+        Stage stage = (Stage) main_form.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    public void close() {
+        System.exit(0);
+    }
+
+    @Override
+    public void initialize(URL arg0, ResourceBundle arg1) {
+        displayUsername();
+        addMedicineShowListData();
+        fetchMedicineTypes();
+        fetchMedicineStatuses();
+        addMedicineListType();
+        addMedicineStatus(); 
+        
+        addmedicine_search.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterMedicineList(newValue);
+        });
+        
+        purchaseType();
+        purchaseMedicineId();
+        purchaseBrand();
+        purchaseProductName();
+        purchaseShowListData();
+        purchaseShowValue();
+        purchaseDisplayTotal();
+    }
+}

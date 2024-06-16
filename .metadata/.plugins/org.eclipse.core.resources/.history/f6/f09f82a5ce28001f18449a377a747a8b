@@ -1,0 +1,115 @@
+package application;
+
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import org.apache.commons.codec.digest.DigestUtils;
+
+public class Controller implements Initializable {
+
+    @FXML
+    private AnchorPane Main_Form;
+
+    @FXML
+    private Button loginBtn;
+
+    @FXML
+    private PasswordField password;
+
+    @FXML
+    private TextField username;
+
+    @FXML
+    private Button closeButton;
+
+    @FXML
+    private Label closeLabel;
+
+    private PreparedStatement prepare;
+    private Connection connect;
+    private ResultSet result;
+
+    @FXML
+    private void loginAdmin() {
+        String sql = "SELECT * FROM admin WHERE username = ? AND password = ?";
+        connect = dataBase.connectDb();
+        
+        try {
+            if (username.getText().isEmpty() || password.getText().isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Please enter your username and password correctly.");
+                return;
+            }
+
+            String hashedPassword = DigestUtils.sha256Hex(password.getText());
+            prepare = connect.prepareStatement(sql);
+            prepare.setString(1, username.getText());
+            prepare.setString(2, hashedPassword);
+            
+            result = prepare.executeQuery();
+
+            if (result.next()) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Successfully logged in.");
+
+                // Hide current window
+                Stage stage = (Stage) loginBtn.getScene().getWindow();
+                stage.close();
+
+                // Load and show the dashboard
+                Parent root = FXMLLoader.load(getClass().getResource("dashboard.fxml"));
+                stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Wrong username/password. Try again.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Consider using a logger here
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while trying to log in.");
+        } finally {
+            closeResources();
+        }
+    }
+
+    @FXML
+    private void close(ActionEvent event) {
+        System.exit(0);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // Initialization code here
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void closeResources() {
+        try {
+            if (result != null) result.close();
+            if (prepare != null) prepare.close();
+            if (connect != null) connect.close();
+        } catch (Exception e) {
+            e.printStackTrace(); // Consider using a logger here
+        }
+    }
+}
