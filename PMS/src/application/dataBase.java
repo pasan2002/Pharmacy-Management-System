@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 public class dataBase {
 	public static Connection connectDb() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			Connection connect = DriverManager.getConnection("jdbc:mysql://localhost/pharmacyDB","root", "");
 			return connect;
 		}catch(Exception e){
