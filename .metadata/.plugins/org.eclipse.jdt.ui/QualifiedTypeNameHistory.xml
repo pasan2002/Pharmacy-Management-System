@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="javafx.stage.StageStyle"/>
+    <fullyQualifiedTypeName name="javafx.collections.FXCollections"/>
+    <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="javafx.scene.control.Alert.AlertType"/>
+    <fullyQualifiedTypeName name="javafx.collections.ObservableList"/>
+    <fullyQualifiedTypeName name="java.awt.TextArea"/>
+    <fullyQualifiedTypeName name="org.apache.pdfbox.pdmodel.font.PDType1Font"/>
+    <fullyQualifiedTypeName name="application.dataBase"/>
+    <fullyQualifiedTypeName name="javafx.scene.chart.XYChart"/>
+    <fullyQualifiedTypeName name="javafx.scene.chart.XYChart.Series"/>
+    <fullyQualifiedTypeName name="javafx.scene.chart.XYChart.Data"/>
+</qualifiedTypeNameHistroy>

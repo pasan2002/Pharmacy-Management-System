@@ -1,0 +1,19 @@
+package application;
+
+import java.sql.Date;
+
+public class customerData {
+	private Integer customerId;
+	private String type;
+	private Integer medicineId;
+	private String brand;
+	private String productName;
+	private Integer quantity;
+	private Double price;
+	private Date date;
+	
+	public customerData(Integer customerId, String type, Integer medicineId,
+			String brand, String productName, Integer quantity, Double price, Date date) {
+		
+	}
+}
